@@ -1,0 +1,10 @@
+# Simple SQLite test configuration
+
+[settings]
+readonly = false
+max_rows = 100
+
+[[sources]]
+id = "test-db"
+type = "sqlite"
+path = ":memory:"

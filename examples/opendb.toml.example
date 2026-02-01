@@ -1,0 +1,128 @@
+# OpenDB MCP Server Configuration Example
+# Copy this file to opendb.toml and customize for your environment
+
+# Global settings
+[settings]
+# Set to true to prevent all write operations (INSERT, UPDATE, DELETE, etc.)
+readonly = false
+
+# Maximum number of rows returned from queries
+max_rows = 1000
+
+# Query timeout in milliseconds (optional)
+# query_timeout = 30000
+
+# Connection timeout in milliseconds (optional)
+# connection_timeout = 10000
+
+# ============================================================================
+# Database Sources
+# ============================================================================
+# Each [[sources]] section defines a database connection.
+# The 'id' field is used to reference the source in tool calls.
+# Environment variables can be used with ${VAR_NAME} or ${VAR_NAME:-default}
+
+# ----------------------------------------------------------------------------
+# PostgreSQL Example
+# ----------------------------------------------------------------------------
+[[sources]]
+id = "postgres-main"
+type = "postgres"
+# Using DSN format:
+dsn = "postgres://${PG_USER:-postgres}:${PG_PASSWORD}@${PG_HOST:-localhost}:${PG_PORT:-5432}/${PG_DATABASE:-mydb}"
+# Or use host-based config:
+# host = "localhost"
+# port = 5432
+# database = "mydb"
+# user = "postgres"
+# password = "${PG_PASSWORD}"
+# ssl = false
+
+# ----------------------------------------------------------------------------
+# MySQL Example
+# ----------------------------------------------------------------------------
+[[sources]]
+id = "mysql-app"
+type = "mysql"
+host = "localhost"
+port = 3306
+database = "appdb"
+user = "${MYSQL_USER:-root}"
+password = "${MYSQL_PASSWORD}"
+
+# ----------------------------------------------------------------------------
+# MariaDB Example
+# ----------------------------------------------------------------------------
+# [[sources]]
+# id = "mariadb-analytics"
+# type = "mariadb"
+# host = "mariadb.example.com"
+# port = 3306
+# database = "analytics"
+# user = "${MARIADB_USER}"
+# password = "${MARIADB_PASSWORD}"
+# readonly = true  # Override global setting for this source
+
+# ----------------------------------------------------------------------------
+# SQL Server Example
+# ----------------------------------------------------------------------------
+# [[sources]]
+# id = "sqlserver-prod"
+# type = "sqlserver"
+# host = "sqlserver.example.com"
+# port = 1433
+# database = "production"
+# user = "${MSSQL_USER}"
+# password = "${MSSQL_PASSWORD}"
+# ssl = true
+
+# ----------------------------------------------------------------------------
+# SQLite Example
+# ----------------------------------------------------------------------------
+[[sources]]
+id = "sqlite-local"
+type = "sqlite"
+path = "./data/local.db"
+# path = ":memory:"  # For in-memory database
+
+# ----------------------------------------------------------------------------
+# Apache Hive with Kerberos Example
+# ----------------------------------------------------------------------------
+# [[sources]]
+# id = "hive-datalake"
+# type = "hive"
+# host = "hive.example.com"
+# port = 10000
+# database = "datalake"
+# auth_mechanism = "KERBEROS"
+# principal = "hive/hive.example.com@REALM.COM"
+# keytab = "/etc/security/keytabs/user.keytab"
+# user_principal = "user@REALM.COM"
+
+# Hive without authentication:
+# [[sources]]
+# id = "hive-dev"
+# type = "hive"
+# host = "hive-dev.example.com"
+# port = 10000
+# auth_mechanism = "NONE"
+
+# ----------------------------------------------------------------------------
+# Apache Impala with Kerberos Example
+# ----------------------------------------------------------------------------
+# [[sources]]
+# id = "impala-analytics"
+# type = "impala"
+# host = "impala.example.com"
+# port = 21050
+# auth_mechanism = "KERBEROS"
+# keytab = "/etc/security/keytabs/user.keytab"
+# user_principal = "user@REALM.COM"
+
+# Impala without authentication:
+# [[sources]]
+# id = "impala-dev"
+# type = "impala"
+# host = "impala-dev.example.com"
+# port = 21050
+# auth_mechanism = "NONE"

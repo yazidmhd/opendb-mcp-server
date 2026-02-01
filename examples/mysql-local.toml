@@ -1,0 +1,13 @@
+# MySQL local server configuration
+
+[settings]
+readonly = true
+max_rows = 1000
+
+[[sources]]
+id = "mysql"
+type = "mysql"
+host = "localhost"
+port = 3306
+user = "root"
+password = "password"
