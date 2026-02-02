@@ -6,6 +6,7 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import express from 'express';
+import { randomUUID } from 'crypto';
 import type { ParsedConfig } from './config/types.js';
 import { ConnectorManager } from './connectors/index.js';
 import { registerTools } from './tools/index.js';
@@ -68,64 +69,51 @@ export async function createServer(options: ServerOptions): Promise<{
         res.json({ status: 'ok', version: SERVER_VERSION });
       });
 
-      // Map to store transports by session ID
+      // Store transports by session
       const transports = new Map<string, StreamableHTTPServerTransport>();
 
-      // Streamable HTTP endpoint
-      httpServer.post('/mcp', async (req, res) => {
+      // Handle all MCP requests (GET, POST, DELETE)
+      httpServer.all('/mcp', async (req, res) => {
         const sessionId = req.headers['mcp-session-id'] as string | undefined;
-        let transport: StreamableHTTPServerTransport;
 
+        // Check for existing session
         if (sessionId && transports.has(sessionId)) {
-          transport = transports.get(sessionId)!;
-        } else {
-          transport = new StreamableHTTPServerTransport({
-            sessionIdGenerator: () => crypto.randomUUID(),
-            onsessioninitialized: (id) => {
-              transports.set(id, transport);
-              logger.info(`MCP session initialized: ${id}`);
-            },
-          });
-
-          transport.onclose = () => {
-            const id = transport.sessionId;
-            if (id) {
-              transports.delete(id);
-              logger.info(`MCP session closed: ${id}`);
-            }
-          };
-
-          await server.connect(transport);
+          // Reuse existing transport - let it handle the request
+          const transport = transports.get(sessionId)!;
+          await transport.handleRequest(req, res, req.body);
+          return;
         }
 
+        // No session - create new transport for initialization
+        // The transport will validate the request and return proper JSON-RPC errors
+        // if it's not a valid initialization request
+        const transport = new StreamableHTTPServerTransport({
+          sessionIdGenerator: () => randomUUID(),
+        });
+
+        transport.onclose = () => {
+          const sid = transport.sessionId;
+          if (sid) {
+            transports.delete(sid);
+          }
+        };
+
+        // Connect the transport to the server
+        await server.connect(transport);
+
+        // Let the transport handle the request - it will return proper JSON-RPC errors
+        // for invalid requests (wrong method, missing Accept header, etc.)
         await transport.handleRequest(req, res, req.body);
-      });
 
-      // Handle GET and DELETE for session management
-      httpServer.get('/mcp', async (req, res) => {
-        const sessionId = req.headers['mcp-session-id'] as string;
-        const transport = transports.get(sessionId);
-        if (transport) {
-          await transport.handleRequest(req, res);
-        } else {
-          res.status(400).json({ error: 'No active session' });
-        }
-      });
-
-      httpServer.delete('/mcp', async (req, res) => {
-        const sessionId = req.headers['mcp-session-id'] as string;
-        const transport = transports.get(sessionId);
-        if (transport) {
-          await transport.handleRequest(req, res);
-          transports.delete(sessionId);
-        } else {
-          res.status(400).json({ error: 'No active session' });
+        // Store the transport if a session was established
+        if (transport.sessionId) {
+          transports.set(transport.sessionId, transport);
         }
       });
 
       httpServerInstance = httpServer.listen(port, '0.0.0.0', () => {
-        logger.info(`MCP server started with HTTP transport on port ${port}`);
-        logger.info(`Streamable HTTP endpoint: http://0.0.0.0:${port}/mcp`);
+        logger.info(`MCP server started with Streamable HTTP transport on port ${port}`);
+        logger.info(`MCP endpoint: http://0.0.0.0:${port}/mcp`);
         logger.info(`Health check: http://0.0.0.0:${port}/health`);
       });
     }
