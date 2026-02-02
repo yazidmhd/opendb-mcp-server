@@ -1,0 +1,17 @@
+# OpenDB MCP Server Configuration for PCF
+# Configure your database connections below
+
+[settings]
+readonly = false
+max_rows = 1000
+
+# Example MySQL source - customize with your database details
+# Use environment variables for secrets: ${VAR_NAME} or ${VAR_NAME:-default}
+[[sources]]
+id = "mydb"
+type = "mysql"
+host = "${DB_HOST:-localhost}"
+port = 3306
+database = "${DB_NAME:-mydb}"
+user = "${DB_USER:-dbuser}"
+password = "${DB_PASSWORD}"

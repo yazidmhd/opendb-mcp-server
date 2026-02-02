@@ -1,0 +1,19 @@
+# Don't upload local node_modules - let PCF install fresh on Linux
+node_modules/
+
+# Don't upload source files - only dist/ is needed
+src/
+
+# Dev/build files not needed in production
+tsconfig.json
+*.log
+*.map
+.DS_Store
+.git/
+.gitignore
+.idea/
+.vscode/
+
+# Local config files with credentials
+.env
+*.local.toml

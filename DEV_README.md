@@ -27,7 +27,7 @@ OpenDB MCP Server provides a unified interface for AI assistants (like Claude) t
 
 ### Key Features
 
-- **Multi-database support**: PostgreSQL, MySQL, MariaDB, SQL Server, SQLite, Hive, Impala
+- **Multi-database support**: PostgreSQL, MySQL, MariaDB, SQL Server, Hive, Impala
 - **Dual transport modes**: stdio (for Claude Desktop) and HTTP/SSE (for web clients)
 - **Progressive schema discovery**: Explore database structures without overwhelming context
 - **Kerberos authentication**: Enterprise-ready authentication for Hive/Impala
@@ -43,7 +43,6 @@ OpenDB MCP Server provides a unified interface for AI assistants (like Claude) t
 | MySQL      | `mysql2`          | 3306         | Password, SSL     |
 | MariaDB    | `mysql2`          | 3306         | Password, SSL     |
 | SQL Server | `mssql`           | 1433         | Password, Encrypt |
-| SQLite     | `better-sqlite3`  | N/A (file)   | N/A               |
 | Hive       | `hive-driver`     | 10000        | NONE, PLAIN, Kerberos |
 | Impala     | `hive-driver`     | 21050        | NONE, PLAIN, Kerberos |
 
@@ -93,7 +92,7 @@ OpenDB MCP Server provides a unified interface for AI assistants (like Claude) t
         ▼                    ▼                    ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                       Database Layer                             │
-│       PostgreSQL   MySQL   SQLServer   SQLite   Hive   Impala   │
+│       PostgreSQL   MySQL   SQLServer   Hive   Impala             │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -160,7 +159,6 @@ opendb-mcp-server/
 │   │   ├── postgres.ts       # PostgreSQL implementation
 │   │   ├── mysql.ts          # MySQL/MariaDB implementation
 │   │   ├── sqlserver.ts      # SQL Server implementation
-│   │   ├── sqlite.ts         # SQLite implementation
 │   │   ├── hive.ts           # Apache Hive implementation
 │   │   └── impala.ts         # Apache Impala implementation
 │   │
@@ -182,7 +180,6 @@ opendb-mcp-server/
 │       └── logger.ts         # Stderr logger for stdio compat
 │
 ├── examples/
-│   ├── sqlite-test.toml      # SQLite config example
 │   ├── mysql-local.toml      # MySQL config example
 │   └── mysql-stdio.toml      # MySQL stdio transport example
 │
@@ -376,23 +373,6 @@ params.forEach((param, index) => {
 });
 ```
 
-### SQLite Connector (`src/connectors/sqlite.ts`)
-
-- **Driver**: `better-sqlite3` (synchronous)
-- **Modes**: File-based or `:memory:`
-- **Read-only**: Enforced at driver level
-
-**File Validation** (lines 27-33):
-```typescript
-if (!isMemory && !fs.existsSync(dbPath)) {
-  throw new Error(`SQLite database file not found: ${dbPath}`);
-}
-```
-
-**Schema Discovery** (lines 131-148):
-- Uses `sqlite_master` table
-- Uses `PRAGMA table_info()` for columns
-
 ### Hive Connector (`src/connectors/hive.ts`)
 
 - **Driver**: `hive-driver` (dynamically imported)
@@ -547,14 +527,6 @@ password = "${MYSQL_PASSWORD}"  # Environment variable
 ssl = true
 ```
 
-**SQLite**:
-```toml
-[[sources]]
-id = "local"
-type = "sqlite"
-path = "/path/to/database.db"  # or ":memory:"
-```
-
 **Kerberos-enabled** (Hive, Impala):
 ```toml
 [[sources]]
@@ -607,7 +579,6 @@ const settingsSchema = z.object({
 const sourceSchema = z.union([
   dsnSourceSchema,
   hostBasedSourceSchema,
-  sqliteSourceSchema,
   kerberosSourceSchema,
 ]);
 ```
@@ -937,9 +908,6 @@ Key settings from `tsconfig.json`:
 Currently, testing is done manually with example configurations:
 
 ```bash
-# SQLite (in-memory)
-npm run dev -- --config examples/sqlite-test.toml
-
 # MySQL local
 npm run dev -- --config examples/mysql-local.toml
 

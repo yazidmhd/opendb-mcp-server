@@ -33,15 +33,6 @@ const hostBasedSourceSchema = z
   })
   .strict();
 
-// SQLite source
-const sqliteSourceSchema = z
-  .object({
-    ...baseSourceFields,
-    type: z.literal('sqlite'),
-    path: z.string().min(1, 'Path is required'),
-  })
-  .strict();
-
 // Kerberos-enabled source (Hive/Impala)
 const kerberosSourceSchema = z
   .object({
@@ -72,7 +63,6 @@ const kerberosSourceSchema = z
 export const sourceSchema = z.union([
   dsnSourceSchema,
   hostBasedSourceSchema,
-  sqliteSourceSchema,
   kerberosSourceSchema,
 ]);
 

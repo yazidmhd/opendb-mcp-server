@@ -10,7 +10,6 @@ A multi-database MCP (Model Context Protocol) server supporting multiple databas
 | MySQL | `mysql2` |
 | MariaDB | `mysql2` |
 | SQL Server | `mssql` |
-| SQLite | `better-sqlite3` |
 | Apache Hive | `hive-driver` |
 | Apache Impala | `hive-driver` |
 

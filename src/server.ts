@@ -123,10 +123,10 @@ export async function createServer(options: ServerOptions): Promise<{
         }
       });
 
-      httpServerInstance = httpServer.listen(port, () => {
+      httpServerInstance = httpServer.listen(port, '0.0.0.0', () => {
         logger.info(`MCP server started with HTTP transport on port ${port}`);
-        logger.info(`Streamable HTTP endpoint: http://localhost:${port}/mcp`);
-        logger.info(`Health check: http://localhost:${port}/health`);
+        logger.info(`Streamable HTTP endpoint: http://0.0.0.0:${port}/mcp`);
+        logger.info(`Health check: http://0.0.0.0:${port}/health`);
       });
     }
   };

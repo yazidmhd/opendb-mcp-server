@@ -7,7 +7,6 @@ import type { IConnector, ConnectorOptions } from './types.js';
 import { PostgresConnector } from './postgres.js';
 import { MySqlConnector } from './mysql.js';
 import { SqlServerConnector } from './sqlserver.js';
-import { SqliteConnector } from './sqlite.js';
 import { HiveConnector } from './hive.js';
 import { ImpalaConnector } from './impala.js';
 import { logger } from '../utils/logger.js';
@@ -49,8 +48,6 @@ export class ConnectorManager {
         return new MySqlConnector(config, options);
       case 'sqlserver':
         return new SqlServerConnector(config, options);
-      case 'sqlite':
-        return new SqliteConnector(config, options);
       case 'hive':
         return new HiveConnector(config, options);
       case 'impala':
@@ -179,6 +176,5 @@ export type { IConnector, ConnectorOptions, ExecuteOptions, SchemaSearchOptions 
 export { PostgresConnector } from './postgres.js';
 export { MySqlConnector } from './mysql.js';
 export { SqlServerConnector } from './sqlserver.js';
-export { SqliteConnector } from './sqlite.js';
 export { HiveConnector } from './hive.js';
 export { ImpalaConnector } from './impala.js';

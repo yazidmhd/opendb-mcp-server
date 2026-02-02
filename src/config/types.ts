@@ -7,7 +7,6 @@ export type DatabaseType =
   | 'mysql'
   | 'mariadb'
   | 'sqlserver'
-  | 'sqlite'
   | 'hive'
   | 'impala';
 
@@ -32,11 +31,6 @@ export interface HostBasedSourceConfig extends BaseSourceConfig {
   ssl?: boolean;
 }
 
-export interface SqliteSourceConfig extends BaseSourceConfig {
-  type: 'sqlite';
-  path: string;
-}
-
 export interface KerberosSourceConfig extends BaseSourceConfig {
   type: 'hive' | 'impala';
   host: string;
@@ -51,7 +45,6 @@ export interface KerberosSourceConfig extends BaseSourceConfig {
 export type SourceConfig =
   | DsnSourceConfig
   | HostBasedSourceConfig
-  | SqliteSourceConfig
   | KerberosSourceConfig;
 
 export interface Settings {
